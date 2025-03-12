@@ -21,7 +21,7 @@ class InvalidArrayAssertTestArgumentException extends InvalidArgumentException
         $method = $class ? "$class::$function" : $function;
 
         return new self(
-            sprintf('Argument #%d of %s is invalid: %s', $arg, $method, $message)
+            sprintf('Argument #%d of %s() must be an %s', $arg, $method, $message)
         );
     }
 }
