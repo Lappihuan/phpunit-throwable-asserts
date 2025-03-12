@@ -23,7 +23,9 @@ use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\Constraint\IsEqual;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\InvalidArgumentException;
+use PHPUnit\Util\Exporter;
 use PhrozenByte\PHPUnitThrowableAsserts\CallableProxy;
+use PhrozenByte\PHPUnitThrowableAsserts\InvalidArrayAssertTestArgumentException;
 use SebastianBergmann\Comparator\ComparisonFailure;
 use Throwable;
 
@@ -61,7 +63,7 @@ abstract class AbstractCallableThrows extends Constraint
     {
         $className = ltrim($className, '\\');
         if (!is_a($className, Throwable::class, true)) {
-            throw InvalidArgumentException::create(1, sprintf('instance of %s', Throwable::class));
+            throw InvalidArrayAssertTestArgumentException::create(1, sprintf('instance of %s', Throwable::class));
         }
 
         if (($message !== null) && !($message instanceof Constraint)) {
@@ -89,9 +91,9 @@ abstract class AbstractCallableThrows extends Constraint
     protected function fail(
         $other,
         $description,
-        ComparisonFailure $comparisonFailure = null,
-        Throwable $throwable = null
-    ): void {
+        ?ComparisonFailure $comparisonFailure = null,
+        ?Throwable $throwable = null
+    ): never {
         $failureDescription = sprintf('Failed asserting that %s.', $this->failureDescription($other));
 
         $throwableFailureDescription = $this->throwableFailureDescription($throwable);
@@ -155,7 +157,7 @@ abstract class AbstractCallableThrows extends Constraint
     protected function failureDescription($other): string
     {
         if (!is_callable($other)) {
-            return $this->exporter()->export($other) . ' is a callable that ' . $this->toString();
+            return Exporter::export($other) . ' is a callable that ' . $this->toString();
         }
 
         if (!is_object($other) || !($other instanceof CallableProxy)) {

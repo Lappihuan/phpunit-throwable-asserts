@@ -274,7 +274,7 @@ class CallableThrowsNotTest extends TestCase
     {
         $expectedException = ExpectationFailedException::class;
         $expectedExceptionMessage = "This is a unit test.\n"
-            . "Failed asserting that " . __CLASS__ . "::{closure}() does not throw a Throwable.\n"
+            . "Failed asserting that " . __CLASS__ . "::{closure:PhrozenByte\PHPUnitThrowableAsserts\Tests\Unit\Constraint\CallableThrowsNotTest::testEvaluateCustomMessage():281}() does not throw a Throwable.\n"
             . "Encountered invalid Exception without a message.";
 
         $constraint = new CallableThrowsNot();

@@ -23,6 +23,8 @@ use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\Exception as PHPUnitException;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\InvalidArgumentException;
+use PHPUnit\Util\Exporter;
+use PhrozenByte\PHPUnitThrowableAsserts\InvalidArrayAssertTestArgumentException;
 use Throwable;
 
 /**
@@ -63,11 +65,11 @@ class CallableThrows extends AbstractCallableThrows
     ) {
         $baseClassName = ltrim($baseClassName, '\\');
         if (!is_a($baseClassName, Throwable::class, true)) {
-            throw InvalidArgumentException::create(5, sprintf('instance of %s', Throwable::class));
+            throw InvalidArrayAssertTestArgumentException::create(5, sprintf('instance of %s', Throwable::class));
         }
 
         if (!is_a($className, $baseClassName, true)) {
-            throw InvalidArgumentException::create(1, sprintf('instance of %s (argument #5)', $baseClassName));
+            throw InvalidArrayAssertTestArgumentException::create(1, sprintf('instance of %s (argument #5)', $baseClassName));
         }
 
         parent::__construct($className, $message, $code, $exactMatch);
@@ -84,7 +86,7 @@ class CallableThrows extends AbstractCallableThrows
     {
         return sprintf('throws a %s', $this->className)
             . ($this->exactMatch ? ' (exact match)' : '')
-            . (($this->code !== null) ? sprintf(' with code %s', $this->exporter()->export($this->code)) : '')
+            . (($this->code !== null) ? sprintf(' with code %s', Exporter::export($this->code)) : '')
             . (($this->messageConstraint && ($this->code !== null)) ? ' and' : '')
             . ($this->messageConstraint ? ' whose message ' . $this->messageConstraint->toString() : '');
     }
@@ -108,7 +110,7 @@ class CallableThrows extends AbstractCallableThrows
      * @throws ExpectationFailedException
      * @throws PHPUnitException
      */
-    public function evaluate($other, string $description = '', bool $returnResult = false)
+    public function evaluate($other, string $description = '', bool $returnResult = false): ?bool
     {
         $throwable = null;
         $comparisonFailure = null;

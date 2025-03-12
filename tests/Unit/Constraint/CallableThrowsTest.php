@@ -215,7 +215,7 @@ class CallableThrowsTest extends TestCase
     public function testEvaluateNoThrow(): void
     {
         $expectedException = ExpectationFailedException::class;
-        $expectedExceptionMessage = 'Failed asserting that ' . __CLASS__ . '::{closure}() throws a Throwable.';
+        $expectedExceptionMessage = 'Failed asserting that ' . __CLASS__ . '::{closure:PhrozenByte\PHPUnitThrowableAsserts\Tests\Unit\Constraint\CallableThrowsTest::testEvaluateNoThrow():221}() throws a Throwable.';
 
         $constraint = new CallableThrows();
         $other = function () {};
@@ -298,7 +298,7 @@ class CallableThrowsTest extends TestCase
     {
         $expectedException = ExpectationFailedException::class;
         $expectedExceptionMessage = "This is a unit test.\n"
-            . "Failed asserting that " . __CLASS__ . "::{closure}() throws a Throwable.";
+            . "Failed asserting that " . __CLASS__ . "::{closure:PhrozenByte\PHPUnitThrowableAsserts\Tests\Unit\Constraint\CallableThrowsTest::testEvaluateCustomMessage():304}() throws a Throwable.";
 
         $constraint = new CallableThrows();
         $other = static function () {};

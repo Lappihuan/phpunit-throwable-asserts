@@ -23,6 +23,7 @@ use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\Exception as PHPUnitException;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\InvalidArgumentException;
+use PHPUnit\Util\Exporter;
 use Throwable;
 
 /**
@@ -73,7 +74,7 @@ class CallableThrowsNot extends AbstractCallableThrows
     {
         return sprintf('does not throw a %s', $this->className)
             . ($this->exactMatch ? ' (exact match)' : '')
-            . (($this->code !== null) ? sprintf(' with code %s', $this->exporter()->export($this->code)) : '')
+            . (($this->code !== null) ? sprintf(' with code %s', Exporter::export($this->code)) : '')
             . (($this->messageConstraint && ($this->code !== null)) ? ' and' : '')
             . ($this->messageConstraint ? ' whose message ' . $this->messageConstraint->toString() : '');
     }
@@ -97,7 +98,7 @@ class CallableThrowsNot extends AbstractCallableThrows
      * @throws ExpectationFailedException
      * @throws PHPUnitException
      */
-    public function evaluate($other, string $description = '', bool $returnResult = false)
+    public function evaluate($other, string $description = '', bool $returnResult = false): ?bool
     {
         if (!is_callable($other)) {
             if (!$returnResult) {
