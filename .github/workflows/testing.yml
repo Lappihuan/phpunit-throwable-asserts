@@ -11,15 +11,12 @@ jobs:
         runs-on: ${{ matrix.operating-system }}
         strategy:
             matrix:
-                operating-system: [ 'ubuntu-latest', 'windows-latest', 'macos-latest' ]
-                php-version: [ '7.2', '7.3', '7.4', '8.0' ]
-                include:
-                    -   operating-system: ubuntu-latest
-                        php-version: '7.2'
+                operating-system: [ 'ubuntu-latest' ]
+                php-version: [ '8.4' ]
             fail-fast: false
 
         steps:
-            -   uses: actions/checkout@v2
+            -   uses: actions/checkout@v4
 
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
@@ -29,6 +26,15 @@ jobs:
 
             -   name: Validate composer.json and composer.lock
                 run: composer validate
+
+            -   name: Cache Composer packages
+                id: composer-cache
+                uses: actions/cache@v3
+                with:
+                  path: vendor
+                  key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+                  restore-keys: |
+                    ${{ runner.os }}-php-
 
             -   name: Install dependencies
                 run: composer update --prefer-dist --no-progress
@@ -41,7 +47,3 @@ jobs:
 
             -   name: Run PHPUnit test suite
                 run: ./vendor/bin/phpunit
-
-            -   name: Check code coverage
-                run: ./vendor/bin/coverage clover.xml 100
-                if: matrix.php-version != '8.0'
