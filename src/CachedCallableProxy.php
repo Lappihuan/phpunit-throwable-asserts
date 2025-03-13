@@ -26,6 +26,8 @@ use Throwable;
  * A simple proxy class for Callables with return value and Throwable caching.
  *
  * @see CallableProxy
+ *
+ * @psalm-suppress UnusedClass
  */
 class CachedCallableProxy extends CallableProxy
 {
