@@ -22,7 +22,7 @@
 testInvalidParameters:
     -   <<: *defaultParams
         className: No class name
-        expectedException: PHPUnit\Framework\InvalidArgumentException
+        expectedException: PhrozenByte\PHPUnitThrowableAsserts\InvalidArrayAssertTestArgumentException
         expectedExceptionMessage: >-
             Argument #1 of PhrozenByte\PHPUnitThrowableAsserts\Constraint\AbstractCallableThrows::__construct()
             must be an instance of Throwable

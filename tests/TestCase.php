@@ -25,6 +25,7 @@ use PHPUnit\Framework\Exception as PHPUnitException;
 use PHPUnit\Framework\ExpectationFailedException;
 use PhrozenByte\PHPUnitThrowableAsserts\Constraint\CallableThrows;
 use PhrozenByte\PHPUnitThrowableAsserts\Constraint\CallableThrowsNot;
+use ReflectionClass;
 use ReflectionObject;
 use Symfony\Component\Yaml\Exception\ParseException as YamlParseException;
 use Symfony\Component\Yaml\Yaml;
@@ -34,6 +35,17 @@ class TestCase extends \PHPUnit\Framework\TestCase
 {
     /** @var array[][][] */
     protected static $testDataSets = [];
+
+    protected function normalizeClosureName(string $message): string {
+        // This pattern matches a closure with possible nested closures.
+        $pattern = '/\{closure(?::(?:[^{}]+|(?R))*)\}/';
+        // Replace nested closures until the pattern no longer matches.
+        while (preg_match($pattern, $message)) {
+            $message = preg_replace($pattern, '{closure}', $message);
+        }
+        return $message;
+    }
+
 
     /**
      * Asserts that a callable throws a specific Throwable.
@@ -66,7 +78,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
                 $this->assertInstanceOf($throwableClassName, $throwable);
 
                 if ($throwableMessage !== null) {
-                    $this->assertSame($throwableMessage, $throwable->getMessage());
+                    $this->assertSame($this->normalizeClosureName($throwableMessage), $this->normalizeClosureName($throwable->getMessage()));
                 }
 
                 // assertion is true
@@ -174,10 +186,10 @@ class TestCase extends \PHPUnit\Framework\TestCase
      *
      * @return array[] test data sets
      */
-    protected function getTestDataSets(string $testName): array
+    protected static function getTestDataSets(string $testName): array
     {
         $error = null;
-        $testClassName = (new ReflectionObject($this))->getShortName();
+        $testClassName = new ReflectionClass(static::class)->getShortName();
         $testDatasetsFile = __DIR__ . '/data/' . $testClassName . '.yml';
 
         if (!isset(self::$testDataSets[$testClassName])) {
@@ -189,7 +201,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
                 $error = 'Permission denied';
             } else {
                 try {
-                    self::$testDataSets[$testClassName] = $this->parseYaml(file_get_contents($testDatasetsFile));
+                    self::$testDataSets[$testClassName] = self::parseYaml(file_get_contents($testDatasetsFile));
                 } catch (YamlParseException $e) {
                     $error = sprintf('YAML parse error: %s', $e->getMessage());
                 }
@@ -227,7 +239,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
      *
      * @throws YamlParseException
      */
-    private function parseYaml(string $input)
+    private static function parseYaml(string $input)
     {
         $yaml = Yaml::parse($input);
 

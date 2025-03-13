@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 namespace PhrozenByte\PHPUnitThrowableAsserts;
 
+use Override;
 use Throwable;
 
 /**
@@ -29,14 +30,15 @@ use Throwable;
 class CachedCallableProxy extends CallableProxy
 {
     /** @var mixed|null */
-    protected $returnValue;
+    protected mixed $returnValue;
 
     /** @var Throwable|null */
-    protected $throwable;
+    protected ?Throwable $throwable;
 
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function __invoke()
     {
         $this->returnValue = null;
@@ -55,8 +57,9 @@ class CachedCallableProxy extends CallableProxy
      * Returns the cached return value of the Callable from its last invocation.
      *
      * @return mixed|null the cached return value of the Callable, or NULL
+     * @psalm-suppress PossiblyUnusedMethod
      */
-    public function getReturnValue()
+    public function getReturnValue(): mixed
     {
         return $this->returnValue;
     }
@@ -65,6 +68,7 @@ class CachedCallableProxy extends CallableProxy
      * Returns the Throwable that was thrown at the Callable's last invocation.
      *
      * @return Throwable|null the cached Throwable the Callable threw, or NULL
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function getThrowable(): ?Throwable
     {

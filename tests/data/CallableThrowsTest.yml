@@ -23,20 +23,20 @@
 testInvalidParameters:
     -   <<: *defaultParams
         baseClassName: No class name
-        expectedException: PHPUnit\Framework\InvalidArgumentException
+        expectedException: PhrozenByte\PHPUnitThrowableAsserts\InvalidArrayAssertTestArgumentException
         expectedExceptionMessage: >-
             Argument #5 of PhrozenByte\PHPUnitThrowableAsserts\Constraint\CallableThrows::__construct()
             must be an instance of Throwable
     -   <<: *defaultParams
         className: Error
         baseClassName: Exception
-        expectedException: PHPUnit\Framework\InvalidArgumentException
+        expectedException: PhrozenByte\PHPUnitThrowableAsserts\InvalidArrayAssertTestArgumentException
         expectedExceptionMessage: >-
             Argument #1 of PhrozenByte\PHPUnitThrowableAsserts\Constraint\CallableThrows::__construct()
             must be an instance of Exception (argument #5)
     -   <<: *defaultParams
         className: No class name
-        expectedException: PHPUnit\Framework\InvalidArgumentException
+        expectedException: PhrozenByte\PHPUnitThrowableAsserts\InvalidArrayAssertTestArgumentException
         expectedExceptionMessage: >-
             Argument #1 of PhrozenByte\PHPUnitThrowableAsserts\Constraint\CallableThrows::__construct()
             must be an instance of Throwable (argument #5)

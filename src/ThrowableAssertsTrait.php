@@ -23,7 +23,7 @@ use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\Exception as PHPUnitException;
 use PHPUnit\Framework\ExpectationFailedException;
-use PHPUnit\Framework\InvalidArgumentException;
+use PhrozenByte\PHPUnitThrowableAsserts\InvalidArrayAssertTestArgumentException;
 use PhrozenByte\PHPUnitThrowableAsserts\Constraint\CallableThrows;
 use PhrozenByte\PHPUnitThrowableAsserts\Constraint\CallableThrowsNot;
 use Throwable;
@@ -189,8 +189,6 @@ trait ThrowableAssertsTrait
      *
      * @param callable $callable     the Callable to invoke
      * @param mixed    ...$arguments the arguments to pass to the Callable
-     *
-     * @return CachedCallableProxy
      */
     public static function cachedCallableProxy(callable $callable, ...$arguments): CachedCallableProxy
     {

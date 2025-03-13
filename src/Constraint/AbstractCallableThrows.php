@@ -19,13 +19,13 @@ declare(strict_types=1);
 
 namespace PhrozenByte\PHPUnitThrowableAsserts\Constraint;
 
+use Override;
 use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\Constraint\IsEqual;
 use PHPUnit\Framework\ExpectationFailedException;
-use PHPUnit\Framework\InvalidArgumentException;
+use PhrozenByte\PHPUnitThrowableAsserts\InvalidArrayAssertTestArgumentException;
 use PHPUnit\Util\Exporter;
 use PhrozenByte\PHPUnitThrowableAsserts\CallableProxy;
-use PhrozenByte\PHPUnitThrowableAsserts\InvalidArrayAssertTestArgumentException;
 use SebastianBergmann\Comparator\ComparisonFailure;
 use Throwable;
 
@@ -49,6 +49,16 @@ abstract class AbstractCallableThrows extends Constraint
     /** @var bool */
     protected $exactMatch;
 
+    #[Override]
+    public function toString(): string
+    {
+        return sprintf('throws a %s', $this->className)
+            . ($this->exactMatch ? ' (exact match)' : '')
+            . (($this->code !== null) ? sprintf(' with code %s', Exporter::export($this->code)) : '')
+            . (($this->messageConstraint && ($this->code !== null)) ? ' and' : '')
+            . ($this->messageConstraint ? ' whose message ' . $this->messageConstraint->toString() : '');
+    }
+
     /**
      * AbstractCallableThrows constructor.
      *
@@ -56,8 +66,6 @@ abstract class AbstractCallableThrows extends Constraint
      * @param Constraint|string|null $message    constraint to match the Throwable's message
      * @param int|string|null        $code       value to match the Throwable's code
      * @param bool                   $exactMatch whether an exact match of the Throwable's class is required
-     *
-     * @throws InvalidArgumentException
      */
     public function __construct(string $className, $message, $code, bool $exactMatch)
     {
@@ -88,6 +96,7 @@ abstract class AbstractCallableThrows extends Constraint
      *
      * @psalm-return never-return
      */
+    #[Override]
     protected function fail(
         $other,
         $description,
@@ -154,6 +163,7 @@ abstract class AbstractCallableThrows extends Constraint
      *
      * @return string the failure description
      */
+    #[Override]
     protected function failureDescription($other): string
     {
         if (!is_callable($other)) {
@@ -170,6 +180,7 @@ abstract class AbstractCallableThrows extends Constraint
     /**
      * Returns the number of assertions performed by this Constraint.
      */
+    #[Override]
     public function count(): int
     {
         return 1 + (($this->code !== null) ? 1 : 0)

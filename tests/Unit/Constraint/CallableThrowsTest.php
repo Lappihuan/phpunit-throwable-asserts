@@ -20,6 +20,7 @@ declare(strict_types=1);
 namespace PhrozenByte\PHPUnitThrowableAsserts\Tests\Unit\Constraint;
 
 use Exception;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\ExpectationFailedException;
 use PhrozenByte\PHPUnitThrowableAsserts\Constraint\CallableThrows;
@@ -36,16 +37,17 @@ use PhrozenByte\PHPUnitThrowableAsserts\Tests\TestCase;
 class CallableThrowsTest extends TestCase
 {
     /**
-     * @dataProvider dataProviderInvalidParameters
      *
-     * @param string                 $className
+     * @param string $className
      * @param Constraint|string|null $message
-     * @param int|string|null        $code
-     * @param bool                   $exactMatch
-     * @param string                 $baseClassName
-     * @param string                 $expectedException
-     * @param string                 $expectedExceptionMessage
+     * @param int|string|null $code
+     * @param bool $exactMatch
+     * @param string $baseClassName
+     * @param string $expectedException
+     * @param string $expectedExceptionMessage
+     * @throws \Throwable
      */
+    #[DataProvider('dataProviderInvalidParameters')]
     public function testInvalidParameters(
         string $className,
         $message,
@@ -64,21 +66,22 @@ class CallableThrowsTest extends TestCase
     /**
      * @return array[]
      */
-    public function dataProviderInvalidParameters(): array
+    public static function dataProviderInvalidParameters(): array
     {
-        return $this->getTestDataSets('testInvalidParameters');
+        return self::getTestDataSets('testInvalidParameters');
     }
 
     /**
-     * @dataProvider dataProviderSelfDescribing
      *
-     * @param string                 $className
+     * @param string $className
      * @param Constraint|string|null $message
-     * @param int|string|null        $code
-     * @param bool                   $exactMatch
-     * @param string                 $baseClassName
-     * @param string                 $expectedDescription
+     * @param int|string|null $code
+     * @param bool $exactMatch
+     * @param string $baseClassName
+     * @param string $expectedDescription
+     * @throws \Throwable
      */
+    #[DataProvider('dataProviderSelfDescribing')]
     public function testSelfDescribing(
         string $className,
         $message,
@@ -100,21 +103,22 @@ class CallableThrowsTest extends TestCase
     /**
      * @return array
      */
-    public function dataProviderSelfDescribing(): array
+    public static function dataProviderSelfDescribing(): array
     {
-        return $this->getTestDataSets('testSelfDescribing');
+        return self::getTestDataSets('testSelfDescribing');
     }
 
     /**
-     * @dataProvider dataProviderEvaluate
      *
-     * @param string                 $className
+     * @param string $className
      * @param Constraint|string|null $message
-     * @param int|string|null        $code
-     * @param bool                   $exactMatch
-     * @param string                 $baseClassName
-     * @param callable               $other
+     * @param int|string|null $code
+     * @param bool $exactMatch
+     * @param string $baseClassName
+     * @param callable $other
+     * @throws \Throwable
      */
+    #[DataProvider('dataProviderEvaluate')]
     public function testEvaluate(
         string $className,
         $message,
@@ -133,23 +137,24 @@ class CallableThrowsTest extends TestCase
     /**
      * @return array
      */
-    public function dataProviderEvaluate(): array
+    public static function dataProviderEvaluate(): array
     {
-        return $this->getTestDataSets('testEvaluate');
+        return self::getTestDataSets('testEvaluate');
     }
 
     /**
-     * @dataProvider dataProviderEvaluateFail
      *
-     * @param string                 $className
+     * @param string $className
      * @param Constraint|string|null $message
-     * @param int|string|null        $code
-     * @param bool                   $exactMatch
-     * @param string                 $baseClassName
-     * @param callable               $other
-     * @param string                 $expectedException
-     * @param string                 $expectedExceptionMessage
+     * @param int|string|null $code
+     * @param bool $exactMatch
+     * @param string $baseClassName
+     * @param callable $other
+     * @param string $expectedException
+     * @param string $expectedExceptionMessage
+     * @throws \Throwable
      */
+    #[DataProvider('dataProviderEvaluateFail')]
     public function testEvaluateFail(
         string $className,
         $message,
@@ -170,23 +175,24 @@ class CallableThrowsTest extends TestCase
     /**
      * @return array
      */
-    public function dataProviderEvaluateFail(): array
+    public static function dataProviderEvaluateFail(): array
     {
-        return $this->getTestDataSets('testEvaluateFail');
+        return self::getTestDataSets('testEvaluateFail');
     }
 
     /**
-     * @dataProvider dataProviderEvaluateRethrow
      *
-     * @param string                 $className
+     * @param string $className
      * @param Constraint|string|null $message
-     * @param int|string|null        $code
-     * @param bool                   $exactMatch
-     * @param string                 $baseClassName
-     * @param callable               $other
-     * @param string                 $expectedException
-     * @param string                 $expectedExceptionMessage
+     * @param int|string|null $code
+     * @param bool $exactMatch
+     * @param string $baseClassName
+     * @param callable $other
+     * @param string $expectedException
+     * @param string $expectedExceptionMessage
+     * @throws \Throwable
      */
+    #[DataProvider('dataProviderEvaluateRethrow')]
     public function testEvaluateRethrow(
         string $className,
         $message,
@@ -207,15 +213,18 @@ class CallableThrowsTest extends TestCase
     /**
      * @return array
      */
-    public function dataProviderEvaluateRethrow(): array
+    public static function dataProviderEvaluateRethrow(): array
     {
-        return $this->getTestDataSets('testEvaluateRethrow');
+        return self::getTestDataSets('testEvaluateRethrow');
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function testEvaluateNoThrow(): void
     {
         $expectedException = ExpectationFailedException::class;
-        $expectedExceptionMessage = 'Failed asserting that ' . __CLASS__ . '::{closure:PhrozenByte\PHPUnitThrowableAsserts\Tests\Unit\Constraint\CallableThrowsTest::testEvaluateNoThrow():221}() throws a Throwable.';
+        $expectedExceptionMessage = 'Failed asserting that ' . __CLASS__ . '::{closure}() throws a Throwable.';
 
         $constraint = new CallableThrows();
         $other = function () {};
@@ -225,6 +234,9 @@ class CallableThrowsTest extends TestCase
         }, $expectedException, $expectedExceptionMessage);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function testEvaluateNoCallable(): void
     {
         $expectedException = ExpectationFailedException::class;
@@ -238,6 +250,9 @@ class CallableThrowsTest extends TestCase
         }, $expectedException, $expectedExceptionMessage);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function testEvaluateReturnsNull(): void
     {
         $constraint = new CallableThrows();
@@ -253,6 +268,9 @@ class CallableThrowsTest extends TestCase
         $this->assertNull($returnValue);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function testEvaluateReturnsTrue(): void
     {
         $constraint = new CallableThrows();
@@ -268,6 +286,9 @@ class CallableThrowsTest extends TestCase
         $this->assertTrue($returnValue);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function testEvaluateReturnsFalse(): void
     {
         $constraint = new CallableThrows();
@@ -281,6 +302,9 @@ class CallableThrowsTest extends TestCase
         $this->assertFalse($returnValue);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function testEvaluateReturnsFalseInvalid(): void
     {
         $constraint = new CallableThrows();
@@ -294,11 +318,14 @@ class CallableThrowsTest extends TestCase
         $this->assertFalse($returnValue);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function testEvaluateCustomMessage(): void
     {
         $expectedException = ExpectationFailedException::class;
         $expectedExceptionMessage = "This is a unit test.\n"
-            . "Failed asserting that " . __CLASS__ . "::{closure:PhrozenByte\PHPUnitThrowableAsserts\Tests\Unit\Constraint\CallableThrowsTest::testEvaluateCustomMessage():304}() throws a Throwable.";
+            . "Failed asserting that " . __CLASS__ . "::{closure}() throws a Throwable.";
 
         $constraint = new CallableThrows();
         $other = static function () {};
@@ -310,15 +337,16 @@ class CallableThrowsTest extends TestCase
     }
 
     /**
-     * @dataProvider dataProviderCountable
      *
-     * @param string                 $className
+     * @param string $className
      * @param Constraint|string|null $message
-     * @param int|string|null        $code
-     * @param bool                   $exactMatch
-     * @param string                 $baseClassName
-     * @param int                    $expectedCount
+     * @param int|string|null $code
+     * @param bool $exactMatch
+     * @param string $baseClassName
+     * @param int $expectedCount
+     * @throws \Throwable
      */
+    #[DataProvider('dataProviderCountable')]
     public function testCountable(
         string $className,
         $message,
@@ -340,8 +368,8 @@ class CallableThrowsTest extends TestCase
     /**
      * @return array[]
      */
-    public function dataProviderCountable(): array
+    public static function dataProviderCountable(): array
     {
-        return $this->getTestDataSets('testCountable');
+        return self::getTestDataSets('testCountable');
     }
 }

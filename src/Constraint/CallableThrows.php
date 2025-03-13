@@ -19,12 +19,12 @@ declare(strict_types=1);
 
 namespace PhrozenByte\PHPUnitThrowableAsserts\Constraint;
 
+use Override;
 use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\Exception as PHPUnitException;
 use PHPUnit\Framework\ExpectationFailedException;
-use PHPUnit\Framework\InvalidArgumentException;
-use PHPUnit\Util\Exporter;
 use PhrozenByte\PHPUnitThrowableAsserts\InvalidArrayAssertTestArgumentException;
+use PHPUnit\Util\Exporter;
 use Throwable;
 
 /**
@@ -39,6 +39,8 @@ use Throwable;
  * Throwable's message, the optional code to assert, whether an exact match of
  * the Throwable's class is required, and the Throwable base class name are
  * passed in the constructor. The Callable is the value to evaluate.
+ *
+ * @psalm-suppress UnusedClass
  */
 class CallableThrows extends AbstractCallableThrows
 {
@@ -54,7 +56,6 @@ class CallableThrows extends AbstractCallableThrows
      * @param bool                   $exactMatch    whether an exact match of the Throwable class is required
      * @param string                 $baseClassName catch all Throwables of the given class
      *
-     * @throws InvalidArgumentException
      */
     public function __construct(
         string $className = Throwable::class,
@@ -82,6 +83,7 @@ class CallableThrows extends AbstractCallableThrows
      *
      * @return string string representation of the Constraint
      */
+    #[Override]
     public function toString(): string
     {
         return sprintf('throws a %s', $this->className)
@@ -110,6 +112,7 @@ class CallableThrows extends AbstractCallableThrows
      * @throws ExpectationFailedException
      * @throws PHPUnitException
      */
+    #[Override]
     public function evaluate($other, string $description = '', bool $returnResult = false): ?bool
     {
         $throwable = null;

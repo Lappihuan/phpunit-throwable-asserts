@@ -21,6 +21,7 @@ namespace PhrozenByte\PHPUnitThrowableAsserts\Tests\Unit;
 
 use Closure;
 use Exception;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PhrozenByte\PHPUnitThrowableAsserts\CachedCallableProxy;
 use PhrozenByte\PHPUnitThrowableAsserts\Tests\TestCase;
@@ -36,19 +37,19 @@ use PhrozenByte\PHPUnitThrowableAsserts\Tests\Utils\InvocableClass;
 class CachedCallableProxyTest extends TestCase
 {
     /**
-     * @dataProvider dataProviderSelfDescribing
      *
      * @param callable $callable
      * @param array    $arguments
      * @param string   $expectedDescription
      */
+    #[DataProvider('dataProviderSelfDescribing')]
     public function testSelfDescribing(
         callable $callable,
         array $arguments,
         string $expectedDescription
     ): void {
         $callableProxy = new CachedCallableProxy($callable, ...$arguments);
-        $this->assertSame($expectedDescription, $callableProxy->toString());
+        $this->assertSame($this->normalizeClosureName($expectedDescription), $this->normalizeClosureName($callableProxy->toString()));
     }
 
     /**
@@ -56,7 +57,7 @@ class CachedCallableProxyTest extends TestCase
      *
      * @return array
      */
-    public function dataProviderSelfDescribing(): array
+    public static function dataProviderSelfDescribing(): array
     {
         return [
             [ 'count', [], 'count()' ],

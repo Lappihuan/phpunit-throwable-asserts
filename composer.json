@@ -36,5 +36,10 @@
         "phpunit/phpunit": "^11.5",
         "mockery/mockery": "^1.6",
         "symfony/yaml": "^7.2"
+    },
+    "scripts": {
+        "test": "phpunit",
+        "lint": "parallel-lint src tests",
+        "psalm": "psalm"
     }
 }

@@ -23,9 +23,10 @@ use Exception;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use Mockery\MockInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\SelfDescribing;
-use PhrozenByte\PHPUnitThrowableAsserts\Assert;
+use PhrozenByte\PHPUnitThrowableAsserts\Tests\Assert;
 use PhrozenByte\PHPUnitThrowableAsserts\CachedCallableProxy;
 use PhrozenByte\PHPUnitThrowableAsserts\CallableProxy;
 use PhrozenByte\PHPUnitThrowableAsserts\Constraint\CallableThrows;
@@ -45,7 +46,7 @@ use Throwable;
  * @see Assert
  *
  * @covers \PhrozenByte\PHPUnitThrowableAsserts\ThrowableAssertsTrait
- * @covers \PhrozenByte\PHPUnitThrowableAsserts\Assert
+ * @covers \PhrozenByte\PHPUnitThrowableAsserts\Tests\Assert
  *
  * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
@@ -55,7 +56,6 @@ class ThrowableAssertsTraitTest extends TestCase
     use MockeryPHPUnitIntegration;
 
     /**
-     * @dataProvider dataProviderCallableThrows
      *
      * @param string                 $className
      * @param Constraint|string|null $message
@@ -63,6 +63,7 @@ class ThrowableAssertsTraitTest extends TestCase
      * @param bool                   $exactMatch
      * @param string                 $baseClassName
      */
+    #[DataProvider('dataProviderCallableThrows')]
     public function testCallableThrows(
         string $className,
         $message,
@@ -80,7 +81,6 @@ class ThrowableAssertsTraitTest extends TestCase
     }
 
     /**
-     * @dataProvider dataProviderCallableThrows
      *
      * @param string                 $className
      * @param Constraint|string|null $message
@@ -89,6 +89,7 @@ class ThrowableAssertsTraitTest extends TestCase
      * @param string                 $baseClassName
      * @param array                  $callableExceptionData
      */
+    #[DataProvider('dataProviderCallableThrows')]
     public function testAssertCallableThrows(
         string $className,
         $message,
@@ -115,7 +116,7 @@ class ThrowableAssertsTraitTest extends TestCase
     /**
      * @return array[]
      */
-    public function dataProviderCallableThrows(): array
+    public static function dataProviderCallableThrows(): array
     {
         return [
             [
@@ -130,13 +131,13 @@ class ThrowableAssertsTraitTest extends TestCase
     }
 
     /**
-     * @dataProvider dataProviderCallableThrowsNot
      *
      * @param string                 $className
      * @param Constraint|string|null $message
      * @param int|string|null        $code
      * @param bool                   $exactMatch
      */
+    #[DataProvider('dataProviderCallableThrowsNot')]
     public function testCallableThrowsNot(
         string $className,
         $message,
@@ -153,13 +154,13 @@ class ThrowableAssertsTraitTest extends TestCase
     }
 
     /**
-     * @dataProvider dataProviderCallableThrowsNot
      *
      * @param string                 $className
      * @param Constraint|string|null $message
      * @param int|string|null        $code
      * @param bool                   $exactMatch
      */
+    #[DataProvider('dataProviderCallableThrowsNot')]
     public function testAssertCallableThrowsNot(
         string $className,
         $message,
@@ -177,10 +178,7 @@ class ThrowableAssertsTraitTest extends TestCase
         Assert::assertCallableThrowsNot($callable, $className, $message, $code, $exactMatch);
     }
 
-    /**
-     * @return array[]
-     */
-    public function dataProviderCallableThrowsNot(): array
+    public static function dataProviderCallableThrowsNot(): array
     {
         return [
             [

@@ -20,6 +20,7 @@ declare(strict_types=1);
 namespace PhrozenByte\PHPUnitThrowableAsserts;
 
 use Closure;
+use Override;
 use PHPUnit\Framework\SelfDescribing;
 use ReflectionException;
 use ReflectionFunction;
@@ -72,6 +73,7 @@ class CallableProxy implements SelfDescribing
      *
      * @return string string representation of the Callable
      */
+    #[Override]
     public function toString(): string
     {
         if (is_string($this->callable)) {

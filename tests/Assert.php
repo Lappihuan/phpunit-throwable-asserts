@@ -17,7 +17,9 @@
 
 declare(strict_types=1);
 
-namespace PhrozenByte\PHPUnitThrowableAsserts;
+namespace PhrozenByte\PHPUnitThrowableAsserts\Tests;
+
+use PhrozenByte\PHPUnitThrowableAsserts\ThrowableAssertsTrait;
 
 /**
  * A set of throwable-related assertion methods.
