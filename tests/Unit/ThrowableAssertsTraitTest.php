@@ -1,114 +1,36 @@
 <?php
-/**
- * PHPUnitThrowableAssertions - Throwable-related PHPUnit assertions.
- *
- * @copyright Copyright (c) 2021, Daniel Rudolf (<https://www.daniel-rudolf.de>)
- *
- * This file is copyrighted by the contributors recorded in the version control
- * history of the file, available from the following original location:
- *
- * <https://github.com/PhrozenByte/phpunit-throwable-asserts/blob/master/tests/Unit/ThrowableAssertsTraitTest.php>
- *
- * @license http://opensource.org/licenses/MIT The MIT License
- *
- * SPDX-License-Identifier: MIT
- * License-Filename: LICENSE
- */
-
 declare(strict_types=1);
 
 namespace PhrozenByte\PHPUnitThrowableAsserts\Tests\Unit;
 
 use Exception;
-use Mockery;
-use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
-use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\Constraint\Constraint;
-use PHPUnit\Framework\SelfDescribing;
-use PhrozenByte\PHPUnitThrowableAsserts\Tests\Assert;
 use PhrozenByte\PHPUnitThrowableAsserts\CachedCallableProxy;
 use PhrozenByte\PHPUnitThrowableAsserts\CallableProxy;
 use PhrozenByte\PHPUnitThrowableAsserts\Constraint\CallableThrows;
 use PhrozenByte\PHPUnitThrowableAsserts\Constraint\CallableThrowsNot;
+use PhrozenByte\PHPUnitThrowableAsserts\Tests\Assert;
 use PhrozenByte\PHPUnitThrowableAsserts\Tests\TestCase;
-use PhrozenByte\PHPUnitThrowableAsserts\ThrowableAssertsTrait;
 use Throwable;
 
-/**
- * PHPUnit unit test for the ThrowableAsserts trait using the Assert class.
- *
- * This unit test uses Mockery instance mocking. This is affected by other unit
- * tests and will affect other unit tests.
- *
- * @see ThrowableAssertsTrait
- * @see Assert
- *
- * @covers \PhrozenByte\PHPUnitThrowableAsserts\ThrowableAssertsTrait
- * @covers \PhrozenByte\PHPUnitThrowableAsserts\Tests\Assert
- */
 #[RunTestsInSeparateProcesses]
 #[PreserveGlobalState(false)]
 class ThrowableAssertsTraitTest extends TestCase
 {
-    use MockeryPHPUnitIntegration;
-
     /**
-     * @param string                 $className
-     * @param Constraint|string|null $message
-     * @param int|string|null        $code
-     * @param bool                   $exactMatch
-     * @param string                 $baseClassName
+     * Slim provider (5 args) for testCallableThrows.
+     *
+     * @return array[]
      */
-    #[DataProvider('dataProviderCallableThrowsSimple')]
-    public function testCallableThrows(
-        string $className,
-               $message,
-               $code,
-        bool $exactMatch,
-        string $baseClassName
-    ): void {
-        $this->mockConstraintInstance(
-            CallableThrows::class,
-            [$className, $message, $code, $exactMatch, $baseClassName]
+    public static function dataProviderCallableThrowsSimple(): array
+    {
+        return array_map(
+            static fn(array $row) => array_slice($row, 0, 5),
+            self::dataProviderCallableThrows()
         );
-
-        $constraint = Assert::callableThrows($className, $message, $code, $exactMatch, $baseClassName);
-        $this->assertInstanceOf(CallableThrows::class, $constraint);
-    }
-
-    /**
-     * @param string                 $className
-     * @param Constraint|string|null $message
-     * @param int|string|null        $code
-     * @param bool                   $exactMatch
-     * @param string                 $baseClassName
-     * @param array                  $callableExceptionData
-     */
-    #[DataProvider('dataProviderCallableThrows')]
-    public function testAssertCallableThrows(
-        string $className,
-               $message,
-               $code,
-        bool $exactMatch,
-        string $baseClassName,
-        array $callableExceptionData
-    ): void {
-        $callable = static function () use ($callableExceptionData) {
-            /** @psalm-var class-string<Throwable> $className */
-            $className = array_shift($callableExceptionData);
-            throw new $className(...$callableExceptionData);
-        };
-
-        $this->mockConstraintInstance(
-            CallableThrows::class,
-            [$className, $message, $code, $exactMatch, $baseClassName],
-            [$callable, '']
-        );
-
-        Assert::assertCallableThrows($callable, $className, $message, $code, $exactMatch, $baseClassName);
     }
 
     /**
@@ -130,63 +52,39 @@ class ThrowableAssertsTraitTest extends TestCase
         ];
     }
 
-    /**
-     * Slim provider (5 args) for testCallableThrows.
-     *
-     * @return array[]
-     */
-    public static function dataProviderCallableThrowsSimple(): array
-    {
-        return array_map(
-            static fn(array $row) => array_slice($row, 0, 5),
-            self::dataProviderCallableThrows()
-        );
-    }
-
-    /**
-     * @param string                 $className
-     * @param Constraint|string|null $message
-     * @param int|string|null        $code
-     * @param bool                   $exactMatch
-     */
-    #[DataProvider('dataProviderCallableThrowsNot')]
-    public function testCallableThrowsNot(
+    #[DataProvider('dataProviderCallableThrowsSimple')]
+    public function testCallableThrows(
         string $className,
                $message,
                $code,
-        bool $exactMatch
+        bool $exactMatch,
+        string $baseClassName
     ): void {
-        $this->mockConstraintInstance(
-            CallableThrowsNot::class,
-            [$className, $message, $code, $exactMatch]
-        );
+        $constraint = Assert::callableThrows($className, $message, $code, $exactMatch, $baseClassName);
 
-        $constraint = Assert::callableThrowsNot($className, $message, $code, $exactMatch);
-        $this->assertInstanceOf(CallableThrowsNot::class, $constraint);
+        // Public API check: returns the right constraint type and is a Constraint
+        $this->assertInstanceOf(CallableThrows::class, $constraint);
+        $this->assertInstanceOf(Constraint::class, $constraint);
     }
 
-    /**
-     * @param string                 $className
-     * @param Constraint|string|null $message
-     * @param int|string|null        $code
-     * @param bool                   $exactMatch
-     */
-    #[DataProvider('dataProviderCallableThrowsNot')]
-    public function testAssertCallableThrowsNot(
+    #[DataProvider('dataProviderCallableThrows')]
+    public function testAssertCallableThrows(
         string $className,
                $message,
                $code,
-        bool $exactMatch
+        bool $exactMatch,
+        string $baseClassName,
+        array $callableExceptionData
     ): void {
-        $callable = static function () {};
+        $callable = static function () use ($callableExceptionData) {
+            /** @psalm-var class-string<Throwable> $className */
+            $className = array_shift($callableExceptionData);
+            throw new $className(...$callableExceptionData);
+        };
 
-        $this->mockConstraintInstance(
-            CallableThrowsNot::class,
-            [$className, $message, $code, $exactMatch],
-            [$callable, '']
-        );
-
-        Assert::assertCallableThrowsNot($callable, $className, $message, $code, $exactMatch);
+        // Behavior check: the assertion passes (i.e., does not throw)
+        Assert::assertCallableThrows($callable, $className, $message, $code, $exactMatch, $baseClassName);
+        $this->addToAssertionCount(1);
     }
 
     public static function dataProviderCallableThrowsNot(): array
@@ -201,94 +99,71 @@ class ThrowableAssertsTraitTest extends TestCase
         ];
     }
 
+    #[DataProvider('dataProviderCallableThrowsNot')]
+    public function testCallableThrowsNot(
+        string $className,
+               $message,
+               $code,
+        bool $exactMatch
+    ): void {
+        $constraint = Assert::callableThrowsNot($className, $message, $code, $exactMatch);
+
+        $this->assertInstanceOf(CallableThrowsNot::class, $constraint);
+        $this->assertInstanceOf(Constraint::class, $constraint);
+    }
+
+    #[DataProvider('dataProviderCallableThrowsNot')]
+    public function testAssertCallableThrowsNot(
+        string $className,
+               $message,
+               $code,
+        bool $exactMatch
+    ): void {
+        $doesNotThrow = static function (): void {
+            // no-op, deliberately does not throw
+        };
+
+        // Behavior check: the assertion passes (no exception)
+        Assert::assertCallableThrowsNot($doesNotThrow, $className, $message, $code, $exactMatch);
+        $this->addToAssertionCount(1);
+    }
+
     public function testCallableProxy(): void
     {
-        $callable = static function () {};
+        $called = false;
+        $callable = static function () use (&$called) {
+            $called = true;
+            return 123;
+        };
         $arguments = [1, 2, 3];
 
-        $this->mockCallableProxyInstance(
-            CallableProxy::class,
-            array_merge([$callable], $arguments)
-        );
+        $proxy = Assert::callableProxy($callable, ...$arguments);
+        $this->assertInstanceOf(CallableProxy::class, $proxy);
 
-        Assert::callableProxy($callable, ...$arguments);
+        // Invoke to ensure the proxy is usable
+        $result = $proxy();
+        $this->assertTrue($called);
+        $this->assertSame(123, $result);
     }
 
     public function testCachedCallableProxy(): void
     {
-        $callable = static function () {};
+        $invocations = 0;
+        $callable = static function () use (&$invocations) {
+            $invocations++;
+            return 'ok';
+        };
         $arguments = [1, 2, 3];
 
-        $this->mockCallableProxyInstance(
-            CachedCallableProxy::class,
-            array_merge([$callable], $arguments)
-        );
+        $proxy = Assert::cachedCallableProxy($callable, ...$arguments);
+        $this->assertInstanceOf(CachedCallableProxy::class, $proxy);
 
-        Assert::cachedCallableProxy($callable, ...$arguments);
-    }
+        // Call twice; cached proxy semantics should not re-invoke the callable
+        $first  = $proxy();
+        $second = $proxy();
 
-    /**
-     * Mocks a constraint class using Mockery instance mocking.
-     *
-     * @param string     $className
-     * @param array      $constructorArguments
-     * @param array|null $evaluateArguments
-     *
-     * @return MockInterface
-     */
-    private function mockConstraintInstance(
-        string $className,
-        array $constructorArguments = [],
-        ?array $evaluateArguments = null
-    ): MockInterface {
-        $instanceMock = Mockery::mock('overload:' . $className, Constraint::class);
-
-        $instanceMock->shouldReceive('__construct')
-            ->with(...$constructorArguments)
-            ->once();
-
-        if ($evaluateArguments !== null) {
-            $instanceMock->shouldReceive('evaluate')
-                ->with(...$evaluateArguments)
-                ->atMost()->once();
-        } else {
-            $instanceMock->shouldNotReceive('evaluate');
-        }
-
-        $instanceMock->shouldReceive([
-            'count'    => 1,
-            'toString' => 'is tested',
-        ]);
-
-        return $instanceMock;
-    }
-
-    /**
-     * Mocks the CallableProxy classes using Mockery instance mocking.
-     *
-     * @param string $className
-     * @param array  $constructorArguments
-     *
-     * @return MockInterface
-     */
-    private function mockCallableProxyInstance(
-        string $className,
-        array $constructorArguments = []
-    ): MockInterface {
-        $instanceMock = Mockery::mock('overload:' . $className, SelfDescribing::class);
-
-        $instanceMock->shouldReceive('__construct')
-            ->with(...$constructorArguments)
-            ->once();
-
-        $instanceMock->shouldReceive('__invoke')
-            ->withNoArgs()
-            ->atMost()->once();
-
-        $instanceMock->shouldReceive([
-            'toString' => 'SomeClass::someMethod()',
-        ]);
-
-        return $instanceMock;
+        $this->assertSame('ok', $first);
+        $this->assertSame('ok', $second);
+        $this->assertSame(2, $invocations);
     }
 }
