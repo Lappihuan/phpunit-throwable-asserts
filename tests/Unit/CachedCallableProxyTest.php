@@ -78,28 +78,42 @@ class CachedCallableProxyTest extends TestCase
 
     public function testInvocation(): void
     {
-        /** @var InvocableClass|MockObject $callable */
-        $callable = $this->createTestProxy(InvocableClass::class);
-        $callable->expects($this->once())
-            ->method('__invoke');
-        $arguments = [ 1, 2, 3 ];
+        $arguments = [1, 2, 3];
 
-        $callableProxy = new CachedCallableProxy($callable, ...$arguments);
+        /** @var InvocableClass&MockObject $invokable */
+        $invokable = $this->getMockBuilder(InvocableClass::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['__invoke'])
+            ->getMock();
+
+        $invokable->expects($this->once())
+            ->method('__invoke')
+            ->with(...$arguments)
+            ->willReturn($arguments);
+
+        $callableProxy = new CachedCallableProxy($invokable, ...$arguments);
         $this->assertSame($arguments, $callableProxy());
     }
 
     public function testGetReturnValue(): void
     {
-        /** @var InvocableClass|MockObject $callable */
-        $callable = $this->createTestProxy(InvocableClass::class);
-        $callable->expects($this->once())
-            ->method('__invoke');
-        $arguments = [ 1, 2, 3 ];
+        $arguments = [1, 2, 3];
 
-        $callableProxy = new CachedCallableProxy($callable, ...$arguments);
+        /** @var InvocableClass&MockObject $invokable */
+        $invokable = $this->getMockBuilder(InvocableClass::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['__invoke'])
+            ->getMock();
+
+        $invokable->expects($this->once())
+            ->method('__invoke')
+            ->with(...$arguments)
+            ->willReturn($arguments);
+
+        $callableProxy = new CachedCallableProxy($invokable, ...$arguments);
 
         $returnValue = null;
-        $this->assertCallableThrowsNot(static function () use ($callableProxy, &$returnValue) {
+        $this->assertCallableThrowsNot(function () use ($callableProxy, &$returnValue) {
             $returnValue = $callableProxy();
         });
 
@@ -110,16 +124,15 @@ class CachedCallableProxyTest extends TestCase
 
     public function testGetThrowable(): void
     {
-        /** @var InvocableClass|MockObject $callable */
-        $callable = $this->createTestProxy(InvocableClass::class, [ Exception::class ]);
-        $callable->expects($this->once())
-            ->method('__invoke');
-        $arguments = [ 1, 2, 3 ];
+        $arguments = [1, 2, 3];
 
-        $callableProxy = new CachedCallableProxy($callable, ...$arguments);
+        // Use the real invokable that throws, not a mock.
+        $invokable = new InvocableClass(Exception::class);
+
+        $callableProxy = new CachedCallableProxy($invokable, ...$arguments);
 
         $returnValue = null;
-        $this->assertCallableThrows(static function () use ($callableProxy, &$returnValue) {
+        $this->assertCallableThrows(function () use ($callableProxy, &$returnValue) {
             $returnValue = $callableProxy();
         }, Exception::class);
 

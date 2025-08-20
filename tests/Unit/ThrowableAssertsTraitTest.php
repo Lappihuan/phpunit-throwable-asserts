@@ -24,6 +24,8 @@ use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\SelfDescribing;
 use PhrozenByte\PHPUnitThrowableAsserts\Tests\Assert;
@@ -39,41 +41,38 @@ use Throwable;
  * PHPUnit unit test for the ThrowableAsserts trait using the Assert class.
  *
  * This unit test uses Mockery instance mocking. This is affected by other unit
- * tests and will affect other unit tests. Thus we run all tests in separate
- * processes and without preserving the global state.
+ * tests and will affect other unit tests.
  *
  * @see ThrowableAssertsTrait
  * @see Assert
  *
  * @covers \PhrozenByte\PHPUnitThrowableAsserts\ThrowableAssertsTrait
  * @covers \PhrozenByte\PHPUnitThrowableAsserts\Tests\Assert
- *
- * @runTestsInSeparateProcesses
- * @preserveGlobalState disabled
  */
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState(false)]
 class ThrowableAssertsTraitTest extends TestCase
 {
     use MockeryPHPUnitIntegration;
 
     /**
-     *
      * @param string                 $className
      * @param Constraint|string|null $message
      * @param int|string|null        $code
      * @param bool                   $exactMatch
      * @param string                 $baseClassName
      */
-    #[DataProvider('dataProviderCallableThrows')]
+    #[DataProvider('dataProviderCallableThrowsSimple')]
     public function testCallableThrows(
         string $className,
-        $message,
-        $code,
+               $message,
+               $code,
         bool $exactMatch,
         string $baseClassName
     ): void {
         $this->mockConstraintInstance(
             CallableThrows::class,
-            [ $className, $message, $code, $exactMatch, $baseClassName ]
+            [$className, $message, $code, $exactMatch, $baseClassName]
         );
 
         $constraint = Assert::callableThrows($className, $message, $code, $exactMatch, $baseClassName);
@@ -81,7 +80,6 @@ class ThrowableAssertsTraitTest extends TestCase
     }
 
     /**
-     *
      * @param string                 $className
      * @param Constraint|string|null $message
      * @param int|string|null        $code
@@ -92,8 +90,8 @@ class ThrowableAssertsTraitTest extends TestCase
     #[DataProvider('dataProviderCallableThrows')]
     public function testAssertCallableThrows(
         string $className,
-        $message,
-        $code,
+               $message,
+               $code,
         bool $exactMatch,
         string $baseClassName,
         array $callableExceptionData
@@ -106,14 +104,16 @@ class ThrowableAssertsTraitTest extends TestCase
 
         $this->mockConstraintInstance(
             CallableThrows::class,
-            [ $className, $message, $code, $exactMatch, $baseClassName ],
-            [ $callable, '' ]
+            [$className, $message, $code, $exactMatch, $baseClassName],
+            [$callable, '']
         );
 
         Assert::assertCallableThrows($callable, $className, $message, $code, $exactMatch, $baseClassName);
     }
 
     /**
+     * Full provider (6 args) used by testAssertCallableThrows.
+     *
      * @return array[]
      */
     public static function dataProviderCallableThrows(): array
@@ -125,13 +125,25 @@ class ThrowableAssertsTraitTest extends TestCase
                 null,
                 false,
                 Throwable::class,
-                [ Exception::class, 'Something went wrong' ],
+                [Exception::class, 'Something went wrong'],
             ],
         ];
     }
 
     /**
+     * Slim provider (5 args) for testCallableThrows.
      *
+     * @return array[]
+     */
+    public static function dataProviderCallableThrowsSimple(): array
+    {
+        return array_map(
+            static fn(array $row) => array_slice($row, 0, 5),
+            self::dataProviderCallableThrows()
+        );
+    }
+
+    /**
      * @param string                 $className
      * @param Constraint|string|null $message
      * @param int|string|null        $code
@@ -140,13 +152,13 @@ class ThrowableAssertsTraitTest extends TestCase
     #[DataProvider('dataProviderCallableThrowsNot')]
     public function testCallableThrowsNot(
         string $className,
-        $message,
-        $code,
+               $message,
+               $code,
         bool $exactMatch
     ): void {
         $this->mockConstraintInstance(
             CallableThrowsNot::class,
-            [ $className, $message, $code, $exactMatch ]
+            [$className, $message, $code, $exactMatch]
         );
 
         $constraint = Assert::callableThrowsNot($className, $message, $code, $exactMatch);
@@ -154,7 +166,6 @@ class ThrowableAssertsTraitTest extends TestCase
     }
 
     /**
-     *
      * @param string                 $className
      * @param Constraint|string|null $message
      * @param int|string|null        $code
@@ -163,16 +174,16 @@ class ThrowableAssertsTraitTest extends TestCase
     #[DataProvider('dataProviderCallableThrowsNot')]
     public function testAssertCallableThrowsNot(
         string $className,
-        $message,
-        $code,
+               $message,
+               $code,
         bool $exactMatch
     ): void {
         $callable = static function () {};
 
         $this->mockConstraintInstance(
             CallableThrowsNot::class,
-            [ $className, $message, $code, $exactMatch ],
-            [ $callable, '' ]
+            [$className, $message, $code, $exactMatch],
+            [$callable, '']
         );
 
         Assert::assertCallableThrowsNot($callable, $className, $message, $code, $exactMatch);
@@ -193,11 +204,11 @@ class ThrowableAssertsTraitTest extends TestCase
     public function testCallableProxy(): void
     {
         $callable = static function () {};
-        $arguments = [ 1, 2, 3 ];
+        $arguments = [1, 2, 3];
 
         $this->mockCallableProxyInstance(
             CallableProxy::class,
-            array_merge([ $callable ], $arguments)
+            array_merge([$callable], $arguments)
         );
 
         Assert::callableProxy($callable, ...$arguments);
@@ -206,11 +217,11 @@ class ThrowableAssertsTraitTest extends TestCase
     public function testCachedCallableProxy(): void
     {
         $callable = static function () {};
-        $arguments = [ 1, 2, 3 ];
+        $arguments = [1, 2, 3];
 
         $this->mockCallableProxyInstance(
             CachedCallableProxy::class,
-            array_merge([ $callable ], $arguments)
+            array_merge([$callable], $arguments)
         );
 
         Assert::cachedCallableProxy($callable, ...$arguments);
@@ -246,7 +257,7 @@ class ThrowableAssertsTraitTest extends TestCase
 
         $instanceMock->shouldReceive([
             'count'    => 1,
-            'toString' => 'is tested'
+            'toString' => 'is tested',
         ]);
 
         return $instanceMock;
@@ -255,8 +266,8 @@ class ThrowableAssertsTraitTest extends TestCase
     /**
      * Mocks the CallableProxy classes using Mockery instance mocking.
      *
-     * @param string     $className
-     * @param array      $constructorArguments
+     * @param string $className
+     * @param array  $constructorArguments
      *
      * @return MockInterface
      */
@@ -275,7 +286,7 @@ class ThrowableAssertsTraitTest extends TestCase
             ->atMost()->once();
 
         $instanceMock->shouldReceive([
-            'toString' => 'SomeClass::someMethod()'
+            'toString' => 'SomeClass::someMethod()',
         ]);
 
         return $instanceMock;

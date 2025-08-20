@@ -78,13 +78,20 @@ class CallableProxyTest extends TestCase
 
     public function testInvocation(): void
     {
-        /** @var InvocableClass|MockObject $callable */
-        $callable = $this->createTestProxy(InvocableClass::class);
-        $callable->expects($this->once())
-            ->method('__invoke');
-        $arguments = [ 1, 2, 3 ];
+        $arguments = [1, 2, 3];
 
-        $callableProxy = new CallableProxy($callable, ...$arguments);
+        /** @var InvocableClass&\PHPUnit\Framework\MockObject\MockObject $invokable */
+        $invokable = $this->getMockBuilder(InvocableClass::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['__invoke'])
+            ->getMock();
+
+        $invokable->expects($this->once())
+            ->method('__invoke')
+            ->with(...$arguments)
+            ->willReturn($arguments);
+
+        $callableProxy = new \PhrozenByte\PHPUnitThrowableAsserts\CallableProxy($invokable, ...$arguments);
         $this->assertSame($arguments, $callableProxy());
     }
 }
