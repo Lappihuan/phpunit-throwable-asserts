@@ -30,7 +30,7 @@
     },
     "require-dev": {
         "php-parallel-lint/php-parallel-lint": "^1.2",
-        "vimeo/psalm": "^6.8",
+        "vimeo/psalm": "^6.14",
         "psalm/plugin-phpunit": "^0.19.2",
         "phpunit/phpunit": "^12.0",
         "symfony/yaml": "^7.2"
